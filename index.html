@@ -1,60 +1,49 @@
-<!DOCTYPE html>
+<!doctype html>
 <html>
-<head>
-  <meta charset="utf-8">
-  <title>D3.js & GeoJSON sample</title>
-  <script src="https://d3js.org/d3.v7.min.js"></script>
-</head>
-<body>
-  <script type="text/javascript">
-    var w = 800;
-    var h = 600;
+  <head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/4.12.0/d3.min.js" type="text/JavaScript"></script>
+  </head>
+  <body>
+    <svg></svg>
+    <script>
+      var width = 600,
+          height = 600;
+      var scale = 1600;
+      d3.json("./japan.geojson", createMap);
 
-    var svg = d3.select("body")
-      .append("svg")
-      .attr({width:w, height:h});
+      function createMap(japan) {
+        var aProjection = d3.geoMercator()
+            .center([ 136.0, 35.6 ])
+            .translate([width/2, height/2])
+            .scale(scale);
+        var geoPath = d3.geoPath().projection(aProjection);
+        var svg = d3.select("svg").attr("width",width).attr("height",height);
 
-    var projection = d3.geo.albers()
-      .center([-15, 36])
-      .rotate([210, 0])
-      .parallels([50, 60])
-      .translate([w/2, h/2])
-      .scale([1500]);
-    var path = d3.geo.path().projection(projection);
-
-    d3.csv("pop2012.csv", function(data) {
-      d3.json("japan.json", function(json) {
-        for(var i=0; i<data.length; i++) {
-          for(var j=0; j<json.features.length; j++) {
-            if( data[i].ken == json.features[j].properties.name_local ) {
-              json.features[j].properties.population = data[i].population;
-            }
-          }
-        }
-
-        svg.selectAll("path")
-          .data(json.features)
+        //マップ描画
+        var map = svg.selectAll("path").data(japan.features)
           .enter()
           .append("path")
-          .attr("d", path)
-          .style("fill", function (d) {
-            var population = d.properties.population;
-            if( population > 10000000 )
-              var c = "darkred";
-            else if( population > 5000000 )
-              var c = "orangered";
-            else if( population > 2500000 )
-              var c = "orange";
-            else if( population > 1000000 )
-              var c = "gold";
-            else
-              var c = "yellow";
-            return c;
-          })
-          .style("stroke", "gray")
-          .style("stroke-width", "0.5px");
-      });
-    });
-  </script>
-</body>
+            .attr("d", geoPath)
+            .style("stroke", "#ffffff")
+            .style("stroke-width", 0.1)
+            .style("fill", "#5EAFC6");
+
+        //ズームイベント設定    
+        var zoom = d3.zoom().on('zoom', function(){
+            aProjection.scale(scale * d3.event.transform.k);
+            map.attr('d', geoPath);
+        });
+        svg.call(zoom);
+
+        //ドラッグイベント設定
+        var drag = d3.drag().on('drag', function(){
+            var tl = aProjection.translate();
+            aProjection.translate([tl[0] + d3.event.dx, tl[1] + d3.event.dy]);
+            map.attr('d', geoPath);
+        });
+        map.call(drag);
+      }
+    </script>
+  </body>
 </html>
+
