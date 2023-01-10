@@ -44,6 +44,13 @@ var myLines = [{
 var myLayer = L.geoJSON().addTo(newMap);
 myLayer.addData(geojsonFeature);
 
+var ccc = loadGeoJSON("https://maps.bodik.jp/api/data/polygon/402036/483e7c07-e6ae-4c8f-b8b3-99499fadd520");
+  var t2023 = L.geoJson(ccc, {
+        style: style,      
+  onEachFeature: onEachFeature
+    });
+map.addLayer(t2023);
+
 L.tileLayer('https://{s}.tile.osm.org/{z}/{x}/{y}.png', {
 attribution: '&copy; <a href=”https://osm.org/copyright”>OpenStreetMap</a> contributors'
 }).addTo(newMap);
