@@ -19,6 +19,22 @@
 <script>
 var newMap = L.map('map').setView([33.584475,130.345863], 13);
 
+
+function loadGeoJSON(data) {
+        var json = null;
+        $.ajax({
+            async: false,
+            global: false,
+            url: data,
+            dataType: "json",
+            success: function (data) {
+                json = data;
+            }
+        });
+        return json;
+    }
+
+
 var geojsonFeature = {
     "type": "Feature",
     "properties": {
